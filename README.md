@@ -1,70 +1,108 @@
-# Getting Started with Create React App
+## React 是啥
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
++ 跟 Vue 不同，React 只是一个 js 库，主要用于构建 UI，很多人认为 React 是 MVC 中的 V（视图）
++ 因为它只是一个库，所以它并没有 Vue 这么多的 API，很多东西都是通过 js 去实现的
++ 因为它拥有较高的性能，代码逻辑简单，越来越多人关注使用它，也开发了很多周边衍生产品，随着社区越来越丰富，它也越来越像是一个渐进式框架
++ 特点
+  1. **声明式设计** −React采用声明范式，可以轻松描述应用。
+  2. **高效** −React通过对DOM的模拟，最大限度地减少与DOM的交互。
+  3. **灵活** −React可以与已知的库或框架很好地配合。
+  4. **JSX** − JSX 是 JavaScript 语法的扩展。React 开发不一定使用 JSX ，但我们建议使用它。
+  5. **组件** − 通过 React 构建组件，使得代码更加容易得到复用，能够很好的应用在大项目的开发中。
+  6. **单向响应的数据流** − React 实现了单向响应的数据流，从而减少了重复代码，这也是它为什么比传统数据绑定更简单。
 
-## Available Scripts
 
-In the project directory, you can run:
 
-### `yarn start`
+## 简单使用 React
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+### 通过 `<script>` 标签引入 React
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+```html
+<script src="react.js"></script>
+<script src="react-dom.js"></script>
+```
 
-### `yarn test`
++ react.js - 核心代码
++ react-dom.js - React 剥离出的涉及 DOM 操作的部分，它可以帮助我们把一个组件挂载到某一个dom节点上
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
-### `yarn build`
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### render && ReactElement
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
++ `ReactDOM.render(Vnode, container[, callback])`
+  + Vnode：要渲染的内容，可以是数字、字符串 或 ReactNode（虚拟DOM）
+  + container: 要挂在的容器（要将内容渲染到哪个元素中）
+  + callback 渲染完时的回调
++ `createElement(type, props, children)`
+  + 与 Vue 的 `createElement` 和 `snabbdom.js` 非常相似，也是为了创建 Vnode
+  + Vnode 的好处也显而易见，DOM 操作作为浏览器中消耗资源最大的东西，去 频繁 或 diff 可真的太恶心人了，为了让性能更好，React 也使用了 Vnode，它能使用一个较为简单的对象去描述 DOM。
+  + type: 标签类型
+  + props：属性
+  + children：子节点 - 可以是数组、字符串、ReactNode
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```javascript
+let header = React.createElement('header', {
+    id: 'header'
+}, '头部');
 
-### `yarn eject`
+console.log(header);
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+ReactDOM.render(
+    header,
+    document.querySelector('#app')
+)
+```
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+### React脚手架
 
-## Learn More
++ 这个就不详谈了
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+```sh
+npm install create-react-app -g
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+create-react-app <projectName>
+```
 
-### Code Splitting
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
 
-### Analyzing the Bundle Size
+## JSX
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
++ 像上面的例子，创建一个 Vnode 需要使用 `React.createElement` 函数，但如果我的结构较为复杂，这么写复杂度和阅读性都非常的差。
++ JSX 就可以很好解决这个问题
 
-### Making a Progressive Web App
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
 
-### Advanced Configuration
+### JSX是什么
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
++ JSX 是 JS 的语法扩展，它使得我们可以再 JavaScript 中编写 **XML**。
++ 注意：是 XML，而并非 HTML，更不是字符串，所以它的编写与我们平时写 HTML 是有些区别的
 
-### Deployment
+```javascript
+let header = (
+    <header id="header">
+    <h1>这是标题</h1>
+    <p>这是副标题</p>
+    </header>
+)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+// 通过 babel 编译后
+var header = React.createElement(
+    "header",
+    { id: "header" },
+    React.createElement(
+        "h1",
+        null,
+        "\u8FD9\u662F\u6807\u9898"
+    ),
+    React.createElement(
+        "p",
+        null,
+        "\u8FD9\u662F\u526F\u6807\u9898"
+    )
+);
+```
 
-### `yarn build` fails to minify
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+

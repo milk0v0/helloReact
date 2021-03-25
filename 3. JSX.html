@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="./js/react.js"></script>
+    <script src="./js/react-dom.js"></script>
+    <script src="./js/babel.js"></script>
+</head>
+
+<body>
+    <div id="app"></div>
+</body>
+<script type="text/babel">
+    // let h1 = React.createElement('h1', null, '这是标题');
+    // let p = React.createElement('p', null, '这是副标题');
+    // let header = React.createElement('header', {
+    //     id: 'header'
+    // }, h1, p);
+    // let header = React.createElement('header', {
+    //     id: 'header'
+    // }, [h1, p]);
+
+    // JSX：在 js 中扩展 xml 的语法
+
+    let header = (
+        <header id="header">
+            <h1>这是标题</h1>
+            <p>这是副标题</p>
+        </header>
+    )
+
+    console.log(header);
+
+    ReactDOM.render(
+        header,
+        document.querySelector('#app')
+    )
+</script>
+
+</html>

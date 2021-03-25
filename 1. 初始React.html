@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="./js/react.js"></script>
+    <script src="./js/react-dom.js"></script>
+</head>
+
+<body>
+    <div id="app"></div>
+</body>
+<script>
+    /*
+    * render(Vnode, container[, callback])
+    *   Vnode: 要渲染的内容，可以是数字、字符串 或 ReactNode
+    *   container: 要挂在的容器（要将内容渲染到哪个元素中）
+    *   callback 渲染完时的回调
+    */
+    ReactDOM.render(
+        'hello React',
+        document.querySelector('#app')
+    )
+</script>
+
+</html>
