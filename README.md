@@ -1,4 +1,4 @@
-## React 是啥
+## React 是什么
 
 + 跟 Vue 不同，React 只是一个 js 库，主要用于构建 UI，很多人认为 React 是 MVC 中的 V（视图）
 + 因为它只是一个库，所以它并没有 Vue 这么多的 API，很多东西都是通过 js 去实现的
@@ -35,7 +35,7 @@
   + callback 渲染完时的回调
 + `createElement(type, props, children)`
   + 与 Vue 的 `createElement` 和 `snabbdom.js` 非常相似，也是为了创建 Vnode
-  + Vnode 的好处也显而易见，DOM 操作作为浏览器中消耗资源最大的东西，去 频繁 或 diff 可真的太恶心人了，为了让性能更好，React 也使用了 Vnode，它能使用一个较为简单的对象去描述 DOM。
+  + Vnode 的好处也显而易见，DOM 操作作为浏览器中消耗资源最大的东西，去 频繁操作 或 diff 可真的太恶心人了，为了让性能更好，React 也使用了 Vnode，它能使用一个较为简单的对象去描述 DOM。
   + type: 标签类型
   + props：属性
   + children：子节点 - 可以是数组、字符串、ReactNode
@@ -106,3 +106,197 @@ var header = React.createElement(
 
 
 
+### 注意事项
+
++ JSX 并不是 html，也不是字符串，它的编写有以下注意事项
+  1. 标签名全部都要小写
+  2. 组件名首字母大写
+  3. 它可以配合 JavaScript 表达式一起使用
+  4. JSX 中有些属性编写时有特殊写法。例如：class、style
+  5. 所有标签必须要闭合，哪怕是单标签
+  6. JSX 中必须有一个顶层包含容器
+     - 如果不想输出这个包含容器，可以使用 `<Fragment>` 或 `<></>`
+     - 它们表示文档碎片，将不会在真实 DOM 输出
+  7. 列表渲染时，必须有 key 值
++ 下面我们会挑一些出来说说，或再找到什么需要注意的时候再补充
+
+
+
+### 插值表达式
+
++ 与 Vue 的插值表达略有不同，以 `{}` 表示，接收的是一个 js 表达式
++ js 表达式：运行之后有一个值的运算就叫做表达式；变量、运算、函数调用
+
+```javascript
+let title = 'hello React';
+let header = (
+  <header id="header" className="header">
+    <h1>{title}</h1>
+    <p>这是副标题</p>
+  </header>
+)
+```
+
++ 如果是想在 `attributes` 中使用插值表达，则省略 `""`
+
+```javascript
+let classname = 'header';
+let header = (
+  <header id="header" className={classname}></header>
+)
+```
+
++ 注意：
+  + JSX内 `class` 需要写成 `className` - 这是为了避免与 类 冲突
+  + style 必须以对象的形式表示
+
+```javascript
+let classname = 'header';
+let _style = {
+  width: 100,
+  borderBottom: '1px solid #000',
+  color: '#999'
+}
+
+let header = (
+  <header id="header" className={classname} style={_style}></header>
+)
+
+// 或者你想偷懒也可以这么写
+let header2 = (
+  <header id="header" className={classname} style={{
+    width: 100,
+    borderBottom: '1px solid #000',
+    color: '#999'
+  }}></header>
+)
+```
+
+
+
+### 条件渲染
+
++ 在 JSX 内容中，不同类型的插值表现
+
+  1. 简单类型
+
+  	- 字符串、数字：原样输出
+  	- 布尔值、空、未定义 会被忽略
+  2. 复杂类型：
+     - 数组: 忽略掉，后拼接输出
+     - 对象：不能再内容中输出（报错）
++ 条件渲染
+  + `||` 、 `&&` 、 `?`
++ 注释：通过 `{/*  */}` 表示
+
+```javascript
+// let title = 'hello React';
+// let title = [1, 2, 3];
+let title = {
+  val: 'hello React'
+}
+
+let header = (
+  <header id="header" className="header">
+    {/* {<h1>{true && title}</h1>} */}
+    {/* {<h1>{false || title}</h1>} */}
+    {<h1>{true ? '标题' : title.val}</h1>}
+    <p>这是副标题</p>
+  </header>
+)
+```
+
+
+
+### 列表渲染
+
++ React 没有类似 Vue 的 `v-for` 语法糖，它实际上就是通过原生 js 遍历返回
++ 先看看简单的吧~
+
+```javascript
+let dataList = [
+  <li>列表项1</li>,
+  <li>列表项2</li>,
+  <li>列表项3</li>
+]
+
+let ul = <ul>{dataList}</ul>
+```
+
++ 像上面的例子，有没有觉得恶心至极，这不就是把数组直接塞进去吗？而且报错是怎么回事？
++ 跟 Vue 一样，循环渲染必须有一个唯一标识的 `key` ，它们的作用都是一样的，为了 `diff` 的时候能找到对应项从而降低消耗，`diff` 的具体我们以后有空再说~
++ 当然我们实际工作中是不会像上面的例子这么去操作的，再看看下面的例子~
+
+```javascript
+let data = [{
+  id: 1,
+  val: '列表项1'
+}, {
+  id: 2,
+  val: '列表项2'
+}, {
+  id: 3,
+  val: '列表项3'
+}];
+
+let ul = (
+  <ul>
+    {data.map(item => <li key={item.id}>{item.val}</li>)}
+  </ul>
+)
+```
+
++ 我们可以看到，React 真的不会做别的事情，这只是 js 的原生遍历而已
+
+
+
+### 函数渲染
+
++ 在我们的数据复杂，需要提前处理逻辑等的时候我们就不能简单的遍历出来了
++ 这个时候我们可以借助函数帮助
++ 下面的例子需求：两个数据一起渲染，按照 id 从大到小的顺序，只渲染单数的列表项
+
+```javascript
+let data = [{
+  id: 1,
+  val: '列表项1'
+}, {
+  id: 2,
+  val: '列表项2'
+}, {
+  id: 3,
+  val: '列表项3'
+}];
+
+let data2 = [{
+  id: 4,
+  val: '列表项A'
+}, {
+  id: 5,
+  val: '列表项B'
+}, {
+  id: 6,
+  val: '列表项C'
+}];
+
+function setInner() {
+  let newData = [...data, ...data2];
+  newData = newData.filter(item => item.id % 2);
+  newData.sort((a, b) => b.id - a.id);
+
+  return newData.map(item => <li key={item.id}>{item.val}</li>)
+}
+
+let ul = (
+  <ul>
+    {setInner()}
+  </ul>
+)
+```
+
+
+
+## end
+
++ React 的入门和 JSX 就差不多是这么多辣~相信大家都会觉得挺简单的吧~
++ 加油\~ 越努力越幸运\~

@@ -9,7 +9,7 @@ import ReactDOM from 'react-dom';
 *   4. 它可以配合 JavaScript 表达式一起使用
 *   5. JSX 中有些属性编写时有特殊写法：
 *     class、style
-*   6. 所有标签必须要闭合，哪怕是但标签
+*   6. 所有标签必须要闭合，哪怕是单标签
 *   7. JSX 中必须有一个顶层包含容器
 *     如果不想输出这个包含容器，可以使用 Fragment/<></>
 *     Fragment/<></> 文档碎片，将不会在真实 DOM 输出
