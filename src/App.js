@@ -1,28 +1,29 @@
 import React, { Component } from 'react';
-import Child from './Child';
-
-import { Provider } from './content'
 
 class App extends Component {
     state = {
-        name: 'milk'
-    }
-    setName = newName => {
-        this.setState({
-            name: newName
-        })
+        val: '',
+        bol: true
     }
     render() {
-        let { name } = this.state;
+        let { val, bol } = this.state;
         return (
             <div>
-                <Provider value={{
-                    name: name,
-                    setName: this.setName
-                }}>
-                    {/* <Child name={name} setName={this.setName}></Child> */}
-                    <Child></Child>
-                </Provider>
+                <input value={val} onChange={({ target }) => {
+                    this.setState({
+                        val: target.value
+                    })
+                }} />
+                <input defaultValue={val} />
+                <p>{val}</p>
+
+                <input type="checkBox" checked={bol} onChange={({ target }) => {
+                    this.setState({
+                        bol: target.checked
+                    })
+                }} />
+                <input type="checkBox" defaultChecked="true" />
+                <p>{bol + ''}</p>
             </div>
         )
     }

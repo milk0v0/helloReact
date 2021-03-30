@@ -165,6 +165,7 @@ class App extends Component {
     + 将数据托管给父级上，然后分别传给子级
 + 我们可以看的出简单的组件通信，就只通过一个 props ，确实很单纯，也让我们少背很多API
 + 注意：在 React.js 中，数据是从上自下流动（传递）的，也就是一个父组件可以把它的 state / props 通过 props 传递给它的子组件，但是子组件不能修改 props - React.js 是单向数据流，如果子组件需要修改父组件状态（数据），是通过回调函数方式来完成的
++ 以下示例，Child 是 App 的子组件
 + App
 
 ```javascript
@@ -217,4 +218,331 @@ export default class Child extends Component {
 ```
 
 
+
+## 跨组件通信 context
+
++ 想象一种场景，还是那个场景，一个结构：父组件 -> 子组件 -> 孙组件，这种情况我们怎么去传递信息呢？
++ 当然我们第一个会想到就是 props，那不是很简单嘛，传下去，传下去不就好了嘛
++ 例子：App -> Child -> SubChild
++ App
+
+```javascript
+class App extends Component {
+    state = {
+        name: 'milk'
+    }
+    setName = newName => {
+        this.setState({
+            name: newName
+        })
+    }
+    render() {
+        let { name } = this.state;
+        return <Child name={name} setName={this.setName}></Child>
+    }
+}
+```
+
++ Child
+
+```javascript
+class Child extends Component {
+    render() {
+        // 直接结构 props 向下传递
+        return <SubChild {...this.props}></SubChild>
+    }
+}
+```
+
++ SubChild
+
+```javascript
+class SubChild extends Component {
+    render() {
+        let { name, setName } = this.props;
+        return (<div>
+            <p>name: {name}</p>
+            <button onClick={() => {
+                setName('牛奶')
+            }}>中文名</button>
+        </div>)
+    }
+}
+```
+
+
+
++ 如果只是上面这种情况也就算了，但如果是~~子子孙孙无穷尽~~很多子孙咋办，不可能全部都传吧，又麻烦，来源又不好找
++ 那到底咋办呢？熟悉 Vue 的朋友可能就想到了 `provide` 和 `inject`，react 也有差不多的方法 - content
++ `React.createContent` - 创建一个上下文的容器
++ `Provider` - 生产者，用于生产共享数据的地方，放置共享的数据放在 value
++ `Consumer` - 消费者，它们专门消费生产者生产的数据，它需要嵌套在生产者下面。才能通过回调的方式拿到共享的数据源
++ 例子：App -> Child -> SubChild
+
+```javascript
+import { createContext } from 'react'
+
+const content = createContext();
+const { Provider, Consumer } = content;
+
+export { Provider, Consumer };
+export default content;
+```
+
++ App
+
+```javascript
+import { Provider } from './content'
+class App extends Component {
+    state = {
+        name: 'milk'
+    }
+    setName = newName => {
+        this.setState({
+            name: newName
+        })
+    }
+    render() {
+        let { name } = this.state;
+        return (
+            <div>
+                <Provider value={{
+                    name: name,
+                    setName: this.setName
+                }}>
+                    <Child></Child>
+                </Provider>
+            </div>
+        )
+    }
+}
+```
+
++ SubChild
+
+```javascript
+// 用法一：使用 <Consumer> 包裹需用到数据的部分，通过回调使用
+class SubChild extends Component {
+    render() {
+        let { count } = this.state;
+        return (
+            <Consumer>
+                {(content) => {
+                    console.log(content);
+                    return (<div>
+                        <p>name: {content.name}</p>
+                        <button onClick={() => {
+                            content.setName('牛奶')
+                        }}>中文名</button>
+                    </div>)
+                }}
+            </Consumer>
+        )
+    }
+}
+```
+
++ 看，是不是很方便，并不需要一层一层的往下传递了，但是，还是有些问题的。`<Consumer>` 太麻烦了，哪里要使用到数据就需要多写这么多东西，这个嵌套我看着也很不爽，不好看
++ 那么我们还可以使用方法二，给类私有属性 contextType 绑定 content，之后我们就可以通过 this.context 访问到数据
+
+```javascript
+// 方法二
+class SubChild extends Component {
+    // 绑定1
+    static contextType = content;
+    render() {
+        let { name, setName } = this.context;
+        return (<div>
+            <p>name: {name}</p>
+            <button onClick={() => {
+                setName('牛奶')
+            }}>中文名</button>
+        </div>)
+    }
+}
+
+// 绑定2
+// SubChild.contextType = content;
+```
+
++ 主要跟 Vue 的 `provide` 和 `inject` 一样，建议是不在项目中使用的，一般在封装高级组件的时候使用
+
+
+
+## 组件的生命周期
+
++ 所谓的生命周期就是指某个事物从开始到结束的各个阶段，当然在 React.js 中指的是组件从创建到销毁的过程，React.js 在这个过程中的不同阶段调用的函数，通过这些函数，我们可以更加精确的对组件进行控制，前面我们一直在使用的 render 函数其实就是组件生命周期渲染阶段执行的函数
++ react 组件的生命周期分为 挂载、更新、卸载 三个阶段
+
+
+
+### 挂载阶段
+
++ mount - 组件创建 -> 组件创建虚拟 DOM -> 生成、挂载到真实 DOM 中
+
+> 1. `constructor(props)` - 初始化组件
+> 2. `static getDerivedStateFromProps(props)` - 将 props 中的某些数据关联到状态 state 中
+> 3. `render()` - 调用 render 方法，生成虚拟 DOM
+> 4. `componentDidMount` - 组件挂载完成
+
+```javascript
+class Child extends Component {
+    constructor(props) {
+        console.log(0, '初始化组件');
+        super(props);
+        this.state = {
+            count: 1
+        }
+    }
+    // 将 props 中的某些数据关联到状态中
+    static getDerivedStateFromProps(props) {
+        // 将对应的数据添加到 state 中
+        console.log(1, '将 props 关联至 state');
+        return {
+            name: props.name
+        }
+    }
+    // 组件挂载完成，如果要获取真实 DOM，在该方法中获取
+    componentDidMount() {
+        console.log(3, '组件挂载完成');
+        console.log(document.querySelector('#name'));
+    }
+    render() {
+        console.log(2, '调用 render 方法，根据 render 的返回值，生成虚拟 DOM');
+        let { name, count } = this.state;
+        let { setName } = this.props;
+        return (
+            <div>
+                <p id="name">name: {name}</p>
+                <p>count: {count}</p>
+                <button onClick={() => {
+                    this.setState({
+                        count: count + 1
+                    })
+                }}>递增</button>
+                <button onClick={() => {
+                    setName('牛奶')
+                }}>中文名</button>
+            </div>
+        )
+    }
+}
+```
+
+
+
+### 更新阶段
+
+> 1. `static getDerivedStateFromProps(props)` - 将 props 中的某些数据关联到状态 state 中
+> 2. `shouldComponentUpdate(nextProps, nextState)` - 控制组件是否更新
+>    - nextProps - 更新之后的 props
+>    - this.props - 更新之前的 props
+>    - nextState - 更新之后的 state
+>    - this.state - 更新之前的 state
+>    - 返回值：true 继续更新流程，进行组件更新，false 打断更新流程，不再继续更新
+> 3. `render()` - 调用 render 方法，生成虚拟 DOM
+> 4. `getSnapshotBeforeUpdate(prevProps, prevState)` - 获取并返回更新前的 DOM 快照
+> 5. `componentDidUpdate(prevProps, prevState, prevDOM)` - 组件更新完成
+>    - prevDOM - `getSnapshotBeforeUpdate` 返回值
+
+```javascript
+class Child extends Component {
+    state = {
+        count: 1
+    }
+    // 将 props 中的某些数据关联到状态中
+    static getDerivedStateFromProps(props) {
+        // 将对应的数据添加到 state 中
+        console.log(0, '将 props 关联至 state');
+        return {
+            name: props.name
+        }
+    }
+    // 控制组件是否更新
+    shouldComponentUpdate(nextProps, nextState) {
+        console.log(1, '控制组件是否更新');
+        // nextProps - 更新之后的 props
+        // this.props - 更新之前的 props
+
+        // nextState - 更新之后的 state
+        // this.state - 更新之前的 state
+
+        return true // true 继续更新流程，进行组件更新，false 打断更新流程，不再继续更新
+    }
+    // 获取更新前的 DOM 快照
+    getSnapshotBeforeUpdate(prevProps, prevState) {
+        // 获取更新前的 DOM 快照：在这一步组件即将去更新视图（真实 DOM），我们可以获取更新前的 DOM 树状态
+        console.log(3, '获取并返回更新前的 DOM 快照');
+        let count = document.querySelector('#count');
+        return count.innerHTML
+    }
+    // 组件更新完成
+    componentDidUpdate(prevProps, prevState, prevDOM) {
+        console.log(4, '组件更新完成');
+        let count = document.querySelector('#count');
+        console.log(prevDOM);
+        console.log(count);
+    }
+    render() {
+        console.log(2, '调用 render 方法，根据 render 的返回值，生成虚拟 DOM');
+        let { name, count } = this.state;
+        let { setName } = this.props;
+        return (
+            <div>
+                <p id="name">name: {name}</p>
+                <p id="count">count: {count}</p>
+                <button onClick={() => {
+                    this.setState({
+                        count: count + 1
+                    })
+                }}>递增</button>
+                <button onClick={() => {
+                    setName('牛奶')
+                }}>中文名</button>
+            </div>
+        )
+    }
+}
+```
+
+
+
+### 卸载阶段
+
+> 1. `componentWillUnmount` - 组件即将卸载
+>    - 一般用于删除添加在全局的一些信息或操作
+
+```javascript
+class Child extends Component {
+    state = {
+        size: window.innerWidth
+    }
+    componentDidMount() {
+        window.onresize = () => {
+            this.setState({
+                size: window.innerWidth
+            })
+        };
+    }
+    // 组件即将卸载
+    componentWillUnmount() {
+        console.log(0, '组件即将卸载');
+        window.onresize = null;
+    }
+    render() {
+        let { size } = this.state;
+        return (
+            <div>
+                <p>size: {size}</p>
+            </div>
+        )
+    }
+}
+```
+
+
+
+### 图示
+
+<img src="https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/52c1ca2551d24f5dbc7dad7a0105bf03~tplv-k3u1fbpfcp-watermark.image"/>
 

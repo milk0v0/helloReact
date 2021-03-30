@@ -294,9 +294,46 @@ let ul = (
 )
 ```
 
+## 受控组件
++ 当想要获取表单的一些内部状态时，就可以将表单的内部状态和组件的状态进行绑定，这样形成受控组件
+    - 受控组件：让 **表单控件** 的内部状态 和 组件内 **state** 保持一致
+    - 非受控组件：不需要同步状态
++ 熟悉 Vue 的朋友这个时候肯定很容易的想到 `v-model` 进行双绑，但 React 并没有这种语法糖，我们只能手动的通过事件实现
++ 注意如果一个 `<input>` 如果未受控的情况，React 将会抛出错误，如果你并不想让组件受控，那么应该使用 `defaultValue` 或 `defaultChecked`
+```javascript
+class App extends Component {
+    state = {
+        val: '',
+        bol: true
+    }
+    render() {
+        let { val, bol } = this.state;
+        return (
+            <div>
+                <input value={val} onChange={({ target }) => {
+                    this.setState({
+                        val: target.value
+                    })
+                }} />
+                <input defaultValue={val} />
+                <p>{val}</p>
+
+                <input type="checkBox" checked={bol} onChange={({ target }) => {
+                    this.setState({
+                        bol: target.checked
+                    })
+                }} />
+                <input type="checkBox" defaultChecked="true" />
+                <p>{bol + ''}</p>
+            </div>
+        )
+    }
+}
+```
+
 
 
 ## end
 
-+ React 的入门和 JSX 就差不多是这么多辣~相信大家都会觉得挺简单的吧~
++ React 的入门和 JSX 就差不多是这么多辣\~相信大家都会觉得挺简单的吧\~
 + 加油\~ 越努力越幸运\~
