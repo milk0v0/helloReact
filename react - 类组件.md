@@ -47,6 +47,42 @@ export default class App extends Component {
 
 
 
+### PureComponent
+
++ React 中有一个被人诟病的性能问题，当一个状态发生变化时，依赖这个状态全部组件都会进行重新的渲染（Vnode），无论多大
+  + 可能有的小朋宇就会问啦，他不是改变状态时，diff 会计算出组件 DOM 树的不同，然后找到真正变化的 DOM，再进行部分渲染吗？
+  + 这个说法，其实是有问题的，他虽然不会真正改变页面视图，但是他会将依赖到这个状态的所有组件重新生成 Vnode、diff，这样无疑是会增加性能耗费的
+  + 另外提一点，在 Vue2 中每一个组件都会都会存在至少一个 Watcher 以观察每一个组件的状态变化，不会渲染整个组件树
++ 那这样我们怎么去优化他呢？我们可以使用 [shouldComponentUpdate](#upDate) 去对他的前后数据进行对比，从而阻止组件继续更新
+
+```javascript
+class Child extends Component {
+    shouldComponentUpdate(nextProps, nextState) {
+        // 这里大概写个栗子，具体情况看实际项目
+        return !(nextProps === this.props && nextState === this.state)
+    }
+    render() {
+        return <div></div>
+    }
+}
+```
+
++ 那不过好像全部都这么写很麻烦，有没有简单点的办法呢？使用 `PureComponent` 可以帮助你减少一些工作量
++ `PureComponent` 内部提供了一个对 state 和 props 的浅对比，其他的功能跟 `Component` 一样
++ 值得注意的是，因为 `PureComponent` 有一个前对比，如果数据是复杂类型的情况下，需要返回一个新的引用，否则组件将不会更新，我们可以使用解构语法方便的做到这一点
+
+```javascript
+import React, { PureComponent } from 'react'
+
+class Child extends PureComponent {
+    render() {
+        return <div></div>
+    }
+}
+```
+
+
+
 ## 组件的视图更新 - state
 
 + React 的视图更新类似与一种状态机，即：状态是什么的时候显示是怎么样
@@ -431,7 +467,7 @@ class Child extends Component {
 
 
 
-### 更新阶段
+### <span id="upDate">更新阶段</span>
 
 > 1. `static getDerivedStateFromProps(props)` - 将 props 中的某些数据关联到状态 state 中
 > 2. `shouldComponentUpdate(nextProps, nextState)` - 控制组件是否更新

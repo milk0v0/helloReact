@@ -1,13 +1,12 @@
 import React, { Component } from 'react';
 
-const eleStr = `<h1>hello~</h1>`
+import Child from './Child'
 
 class App extends Component {
     render() {
         return (
-            <div dangerouslySetInnerHTML={{
-                __html: eleStr
-            }}></div>
+            <Child child1={<div>1</div>}
+            child2={<div>2</div>} />
         )
     }
 }

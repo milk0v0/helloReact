@@ -294,7 +294,10 @@ let ul = (
 )
 ```
 
+
+
 ## 受控组件
+
 + 当想要获取表单的一些内部状态时，就可以将表单的内部状态和组件的状态进行绑定，这样形成受控组件
     - 受控组件：让 **表单控件** 的内部状态 和 组件内 **state** 保持一致
     - 非受控组件：不需要同步状态
@@ -326,6 +329,116 @@ class App extends Component {
                 <input type="checkBox" defaultChecked="true" />
                 <p>{bol + ''}</p>
             </div>
+        )
+    }
+}
+```
+
+
+
+## ref
+
++ `createRef()`
++ ref 用于获取组件实例或真实 DOM 节点
++ 注意：ref 在 组件挂载完成之后 或 更新之后 使用
+
+```javascript
+import React, { Component, createRef } from 'react'
+
+class Child extends Component {
+    state = {
+        val: ''
+    }
+    editText = createRef();
+    componentDidMount() {
+        this.editText.current.focus();
+    }
+    render() {
+        const { val } = this.state;
+        return (
+            <input ref={this.editText} value={val} />
+        );
+    }
+}
+```
+
+
+
+## children
+
++ 熟悉 Vue 的朋宇萌肯定会很奇怪，`<slot>` 插槽他究竟是有还是没有，其实也是有的，他就是 `props.children`
++ 不过虽说有插槽，但他不具名，也算是比较鸡肋吧，我们来看一下~
+
+```javascript
+// App
+class App extends Component {
+    render() {
+        return (
+            <Child>
+                <div>123</div>
+            </Child>
+        )
+    }
+}
+
+// Child
+class Child extends Component {
+    render() {
+        const { children } = this.props;
+        return (
+            <div>
+                {children}
+            </div>
+        )
+    }
+}
+```
+
++ 那如果我们有很多个地方需要用到所谓的插槽怎么办呢？这就是为什么他好像鸡肋的原因了
++ ...这个东西完全可以通过 props 去代替
+
+```javascript
+// App
+class App extends Component {
+    render() {
+        return (
+            <Child child1={<div>1</div>}
+            child2={<div>2</div>} />
+        )
+    }
+}
+
+// Child
+class Child extends Component {
+    render() {
+        const { child1, child2 } = this.props;
+        return (
+            <div>
+                {child1}
+                {child2}
+            </div>
+        )
+    }
+}
+```
+
+
+
+## dangerouslySetInnerHTML
+
++ 我们在实际工作中有可能会出现这样的情况，后端给我们传值，但是传过来的内容是一个 html 结构，我们需要把这个结构插入到页面中
++ 如果我们直接用 `{}` 插值，那么显示的只会字符串（textContent/innerText），这个时候我们就需要使用 `dangerouslySetInnerHTML`
++ 它接收一个对象，对象内 `__html` 为关键字
+
+```javascript
+const eleStr = `<h1>hello~</h1>`
+
+class App extends Component {
+    render() {
+        return (
+            <div dangerouslySetInnerHTML={{
+                __html: eleStr
+            }}></div>
         )
     }
 }
