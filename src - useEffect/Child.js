@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react'
 
+let isUpDate = false;
+
 export default function Child(props) {
     const [count, setCount] = useState(1);
     const [val, setVal] = useState('');
@@ -14,8 +16,17 @@ export default function Child(props) {
         console.log('componentDidMount');
         return () => {
             console.log('componentWillUnmount');
+            isUpDate = false;
         }
     }, []);
+
+    useEffect(() => {
+        if(isUpDate) {
+            console.log('shouldComponentUpdate');
+        } else {
+            isUpDate = true;
+        }
+    })
 
     // useEffect(() => {
     //     console.log('componentDidMount');
