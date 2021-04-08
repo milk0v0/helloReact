@@ -472,6 +472,29 @@ class App extends Component {
 
 
 
+## `<img>` 注意项
+
++ 在 React 中使用图片，src 有几点需要注意
++ src 可以引入
+  1. 线上绝对路径
+  2. 本地相对路径，但是要当作模板引入
+  3. base64
++ 本地相对路径直接使用，并不会起作用
+
+```javascript
+import url from './img.jpg'
+
+export default function App() {
+    return <div>
+        <img width="300" src="https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/c2f464a8198a45819534b81de92f464b~tplv-k3u1fbpfcp-watermark.image" />
+        <img width="300" src={url} />
+        <img width="300" src={require('./img.jpg').default} />
+    </div>
+}
+```
+
+
+
 ## end
 
 + React 的入门和 JSX 就差不多是这么多辣\~相信大家都会觉得挺简单的吧\~
